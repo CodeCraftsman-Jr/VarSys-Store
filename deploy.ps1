@@ -14,7 +14,7 @@ Enter choice (1-3)"
 switch ($choice) {
     "1" {
         Write-Host "Deploying to Vercel..." -ForegroundColor Green
-        cd "D:\VarSysProjects\VarSys Store"
+        cd "D:\VarSysProjects\VarSys-Store"
         
         # Check if Vercel CLI is installed
         if (!(Get-Command vercel -ErrorAction SilentlyContinue)) {
@@ -26,7 +26,7 @@ switch ($choice) {
     }
     "2" {
         Write-Host "Deploying to Netlify..." -ForegroundColor Green
-        cd "D:\VarSysProjects\VarSys Store"
+        cd "D:\VarSysProjects\VarSys-Store"
         
         # Check if Netlify CLI is installed
         if (!(Get-Command netlify -ErrorAction SilentlyContinue)) {
@@ -38,7 +38,7 @@ switch ($choice) {
     }
     "3" {
         Write-Host "Starting local test server..." -ForegroundColor Green
-        cd "D:\VarSysProjects\VarSys Store"
+        cd "D:\VarSysProjects\VarSys-Store"
         Write-Host "Server will start at http://localhost:8000" -ForegroundColor Cyan
         Write-Host "Press Ctrl+C to stop" -ForegroundColor Yellow
         python -m http.server 8000
