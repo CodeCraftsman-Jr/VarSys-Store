@@ -117,6 +117,12 @@
         // Fetch and display updates
         async function loadUpdates() {
             try {
+                console.log('Fetching updates from Appwrite...');
+                console.log('Endpoint:', ENDPOINT);
+                console.log('Project:', PROJECT_ID);
+                console.log('Database:', DATABASE_ID);
+                console.log('Collection:', COLLECTION_ID);
+
                 const response = await databases.listDocuments(
                     DATABASE_ID,
                     COLLECTION_ID,
@@ -127,6 +133,8 @@
                     ]
                 );
 
+                console.log('Response:', response);
+
                 const loading = document.getElementById('loading');
                 const container = document.getElementById('apps-container');
                 const noUpdates = document.getElementById('no-updates');
@@ -134,9 +142,12 @@
                 loading.classList.add('hidden');
 
                 if (response.documents.length === 0) {
+                    console.log('No documents found');
                     noUpdates.classList.remove('hidden');
                     return;
                 }
+
+                console.log(`Found ${response.documents.length} updates`);
 
                 // Group updates by app name and get latest version
                 const latestUpdates = {};
@@ -145,6 +156,8 @@
                         latestUpdates[doc.app_name] = doc;
                     }
                 });
+
+                console.log('Latest updates:', latestUpdates);
 
                 // Display app cards
                 container.classList.remove('hidden');
@@ -162,11 +175,19 @@
 
             } catch (error) {
                 console.error('Error loading updates:', error);
-                document.getElementById('loading').innerHTML = `
-                    <div class="text-red-600">
-                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
-                        <p class="text-xl">Failed to load updates</p>
-                        <p class="text-sm mt-2">${error.message}</p>
+                const loading = document.getElementById('loading');
+                loading.innerHTML = `
+                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 max-w-2xl mx-auto">
+                        <i class="fas fa-info-circle text-4xl text-yellow-600 mb-4"></i>
+                        <p class="text-xl font-semibold text-gray-800 mb-2">No Updates Available Yet</p>
+                        <p class="text-gray-600 mb-4">The download center is ready, but no app versions have been uploaded yet.</p>
+                        <details class="text-left">
+                            <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700">Technical Details</summary>
+                            <pre class="mt-2 text-xs bg-gray-100 p-3 rounded overflow-auto">${error.message}
+
+Error Type: ${error.type || 'Unknown'}
+Code: ${error.code || 'N/A'}</pre>
+                        </details>
                     </div>
                 `;
             }
