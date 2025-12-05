@@ -1,0 +1,13 @@
+{
+  "name": "VarSys Apps Download Center",
+  "version": "1.0.0",
+  "description": "Static download site for VarSys mobile and desktop applications",
+  "scripts": {
+    "start": "npx http-server -p 8000",
+    "deploy:vercel": "vercel --prod",
+    "deploy:netlify": "netlify deploy --prod --dir ."
+  },
+  "keywords": ["download", "updates", "appwrite", "mobile-apps"],
+  "author": "VarSys",
+  "license": "MIT"
+}
