@@ -8,8 +8,11 @@ const DATABASE_ID = 'traqify_db';
 const COLLECTION_ID = 'app_updates';
 const BUCKET_ID = 'app-updates';
 
-// Admin User ID - Only this user can access admin features
-const ADMIN_USER_ID = '6752f839003c62f26d03';
+// Admin User IDs - Only these users can access admin features
+const ADMIN_USER_IDS = [
+    '6752f839003c62f26d03',
+    '6936583b000b3647252e'
+];
 
 const client = new Client()
     .setEndpoint(ENDPOINT)
@@ -25,7 +28,7 @@ export const config = {
     databaseId: DATABASE_ID,
     collectionId: COLLECTION_ID,
     bucketId: BUCKET_ID,
-    adminUserId: ADMIN_USER_ID,
+    adminUserIds: ADMIN_USER_IDS,
 };
 
 export default client;

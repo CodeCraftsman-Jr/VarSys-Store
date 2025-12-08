@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AppwriteUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const isAdmin = user?.$id === config.adminUserId;
+    const isAdmin = user ? config.adminUserIds.includes(user.$id) : false;
 
     useEffect(() => {
         checkSession();
@@ -51,8 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await account.createEmailPasswordSession(email, password);
             const currentUser = await account.get();
 
-            // Check if user is the admin
-            if (currentUser.$id !== config.adminUserId) {
+            // Check if user is an admin
+            if (!config.adminUserIds.includes(currentUser.$id)) {
                 await account.deleteSession('current');
                 throw new Error('You are not authorized to access the admin panel.');
             }
