@@ -5,6 +5,10 @@ import StorePage from './pages/StorePage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 
+/**
+ * ProtectedRoute - Wraps routes that require admin authentication
+ * Only admin users with authorized IDs can access protected routes
+ */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, isLoading } = useAuth();
 
@@ -23,6 +27,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * AppRoutes - Defines the application routing
+ * "/" - Public home page (no authentication required)
+ * "/admin" - Admin login page
+ * "/admin/dashboard" - Protected admin dashboard (requires authentication)
+ */
 function AppRoutes() {
   return (
     <Routes>

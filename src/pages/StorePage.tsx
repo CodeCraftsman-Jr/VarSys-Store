@@ -7,6 +7,11 @@ import type { AppUpdate } from '../types/index.js';
 
 type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey';
 
+/**
+ * StorePage - Public page accessible to everyone without authentication
+ * Displays all available app updates with download links
+ * Note: Appwrite collection must have public read permissions enabled
+ */
 export default function StorePage() {
     const [updates, setUpdates] = useState<AppUpdate[]>([]);
     const [isLoading, setIsLoading] = useState(true);
