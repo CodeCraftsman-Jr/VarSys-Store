@@ -21,6 +21,7 @@ export default function AdminDashboardPage() {
     const [updates, setUpdates] = useState<AppUpdate[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'releases' | 'upload'>('releases');
+    const [previousVersion, setPreviousVersion] = useState<AppUpdate | null>(null);
 
     // Upload form state
     const [uploadForm, setUploadForm] = useState({
@@ -47,6 +48,31 @@ export default function AdminDashboardPage() {
             loadAllUpdates();
         }
     }, [user]);
+
+    useEffect(() => {
+        // Load previous version when app name changes
+        if (uploadForm.appName) {
+            loadPreviousVersion(uploadForm.appName);
+        }
+    }, [uploadForm.appName, updates]);
+
+    async function loadPreviousVersion(appName: string) {
+        try {
+            const appUpdates = updates.filter(u => u.app_name === appName);
+            if (appUpdates.length > 0) {
+                // Get the latest version by version_code
+                const latest = appUpdates.reduce((prev, current) => 
+                    current.version_code > prev.version_code ? current : prev
+                );
+                setPreviousVersion(latest);
+            } else {
+                setPreviousVersion(null);
+            }
+        } catch (err) {
+            console.error('Error loading previous version:', err);
+            setPreviousVersion(null);
+        }
+    }
 
     async function loadAllUpdates() {
         try {
@@ -241,6 +267,7 @@ export default function AdminDashboardPage() {
                         success={uploadSuccess}
                         onSubmit={handleUpload}
                         appNames={ALL_APP_NAMES}
+                        previousVersion={previousVersion}
                     />
                 )}
             </main>
@@ -365,6 +392,7 @@ interface UploadFormProps {
     success: boolean;
     onSubmit: (e: React.FormEvent) => void;
     appNames: string[];
+    previousVersion: AppUpdate | null;
 }
 
 function UploadForm({
@@ -376,7 +404,8 @@ function UploadForm({
     error,
     success,
     onSubmit,
-    appNames
+    appNames,
+    previousVersion
 }: UploadFormProps) {
     return (
         <div className="max-w-2xl mx-auto">
@@ -391,6 +420,35 @@ function UploadForm({
                         <p className="text-purple-300/70 text-sm">Upload and publish a new app version</p>
                     </div>
                 </div>
+
+                {/* Previous Version Info */}
+                {previousVersion && (
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl sm:rounded-2xl p-4 mb-5 sm:mb-6">
+                        <div className="flex items-start gap-3">
+                            <i className="fas fa-info-circle text-blue-400 mt-0.5"></i>
+                            <div className="flex-1">
+                                <p className="text-blue-200 font-medium text-sm mb-2">Current Latest Version</p>
+                                <div className="grid grid-cols-3 gap-3 text-xs">
+                                    <div>
+                                        <span className="text-blue-300/70 block mb-1">Version</span>
+                                        <span className="text-white font-semibold">{previousVersion.version}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-blue-300/70 block mb-1">Version Code</span>
+                                        <span className="text-white font-semibold">{previousVersion.version_code}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-blue-300/70 block mb-1">Build Number</span>
+                                        <span className="text-white font-semibold">{previousVersion.build_number}</span>
+                                    </div>
+                                </div>
+                                <p className="text-blue-300/70 text-xs mt-2">
+                                    💡 Bump version code to {previousVersion.version_code + 1} for the new release
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Messages */}
                 {error && (

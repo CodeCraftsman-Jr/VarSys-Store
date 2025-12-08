@@ -39,7 +39,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const currentUser = await account.get();
             setUser(currentUser);
-        } catch {
+        } catch (error) {
+            // User not logged in - this is expected for public visitors
             setUser(null);
         } finally {
             setIsLoading(false);
