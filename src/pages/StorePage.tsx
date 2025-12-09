@@ -34,15 +34,9 @@ export default function StorePage() {
                 ]
             );
 
-            const latestUpdates: Record<string, AppUpdate> = {};
-            response.documents.forEach((doc) => {
-                const update = doc as unknown as AppUpdate;
-                if (!latestUpdates[update.app_name] || update.version_code > latestUpdates[update.app_name].version_code) {
-                    latestUpdates[update.app_name] = update;
-                }
-            });
-
-            setUpdates(Object.values(latestUpdates));
+            // Show all builds, not just latest
+            const allUpdates = response.documents.map(doc => doc as unknown as AppUpdate);
+            setUpdates(allUpdates);
         } catch (err) {
             console.error('Error loading updates:', err);
             setError('Failed to load updates');
