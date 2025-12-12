@@ -1,0 +1,22 @@
+{
+    "projectId": "692edd5d002346df067e",
+    "endpoint": "https://cloud.appwrite.io/v1",
+    "sites": [
+        {
+            "$id": "NEW_SITE_ID_PLACEHOLDER",
+            "name": "VarSys-Store",
+            "enabled": true,
+            "logging": true,
+            "framework": "react",
+            "timeout": 30,
+            "installCommand": "npm install",
+            "buildCommand": "npm run build",
+            "outputDirectory": "./dist",
+            "specification": "s-4vcpu-4gb",
+            "buildRuntime": "node-22",
+            "adapter": "static",
+            "fallbackFile": "index.html",
+            "path": "./"
+        }
+    ]
+}
