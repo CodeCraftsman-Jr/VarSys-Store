@@ -1,5 +1,6 @@
 // Appwrite Configuration
 import { Client, Databases, Storage, Account } from 'appwrite';
+import { analytics, createTrackedDatabases } from './analytics';
 
 // Appwrite Configuration - Cloud
 const ENDPOINT = 'https://cloud.appwrite.io/v1';
@@ -18,7 +19,17 @@ const client = new Client()
     .setEndpoint(ENDPOINT)
     .setProject(PROJECT_ID);
 
-export const databases = new Databases(client);
+// Initialize analytics tracking
+analytics.init({
+    app: 'varsys-store',
+    platform: 'web',
+    apiUrl: import.meta.env.VITE_ANALYTICS_API_URL || 'https://usage-tracker-gamma.vercel.app/api',
+});
+
+// Create tracked databases (auto-tracks all reads/writes)
+const rawDatabases = new Databases(client);
+export const databases = createTrackedDatabases(rawDatabases);
+
 export const storage = new Storage(client);
 export const account = new Account(client);
 
