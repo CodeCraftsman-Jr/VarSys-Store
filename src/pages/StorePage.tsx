@@ -125,8 +125,8 @@ export default function StorePage() {
                             key={filter}
                             onClick={() => setActiveFilter(filter)}
                             className={`px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-200 ${activeFilter === filter
-                                    ? 'bg-purple-600 text-white shadow-lg'
-                                    : 'bg-white/10 text-purple-200 hover:bg-white/20'
+                                ? 'bg-purple-600 text-white shadow-lg'
+                                : 'bg-white/10 text-purple-200 hover:bg-white/20'
                                 }`}
                         >
                             {filter}
@@ -288,8 +288,8 @@ function AppSection({ name, updates, formatFileSize, formatDate, getPlatformIcon
                                 {/* Footer */}
                                 <div className="flex items-center justify-between">
                                     <span className={`text-xs px-2.5 py-1 rounded-full ${update.is_mandatory
-                                            ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                                            : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                        ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                        : 'bg-green-500/20 text-green-300 border border-green-500/30'
                                         }`}>
                                         {update.is_mandatory ? 'Required' : 'Optional'}
                                     </span>

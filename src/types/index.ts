@@ -57,13 +57,20 @@ export const APP_METADATA: Record<string, AppMetadata> = {
         color: 'green',
         description: 'Desktop version for Windows',
         tagline: 'Full-featured desktop experience'
+    },
+    'UsageTracker Mobile': {
+        icon: 'fa-chart-bar',
+        color: 'purple',
+        description: 'Real-time analytics dashboard for VarSys apps',
+        tagline: 'Track, Analyze, Monitor Everything'
     }
 };
 
 export const APP_GROUPS = {
     'CookSuite': ['CookSuite Mobile', 'CookSuite Desktop'],
     'TraQify': ['TraQify Mobile', 'TraQify Desktop'],
-    'Joint Journey': ['Joint Journey Mobile', 'Joint Journey Desktop']
+    'Joint Journey': ['Joint Journey Mobile', 'Joint Journey Desktop'],
+    'UsageTracker': ['UsageTracker Mobile']
 } as const;
 
 export type AppGroupName = keyof typeof APP_GROUPS;
