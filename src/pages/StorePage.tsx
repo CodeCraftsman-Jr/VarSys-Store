@@ -5,7 +5,7 @@ import { databases, config } from '../lib/appwrite';
 import { APP_METADATA, APP_GROUPS } from '../types/index.js';
 import type { AppUpdate } from '../types/index.js';
 
-type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey';
+type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'UsageTracker';
 
 /**
  * StorePage - Public page accessible to everyone without authentication
@@ -49,7 +49,8 @@ export default function StorePage() {
         const grouped: Record<AppGroupName, AppUpdate[]> = {
             'CookSuite': [],
             'TraQify': [],
-            'Joint Journey': []
+            'Joint Journey': [],
+            'UsageTracker': []
         };
 
         updates.forEach((update) => {
@@ -120,7 +121,7 @@ export default function StorePage() {
             {/* Filter Tabs */}
             <div className="max-w-6xl mx-auto px-4 mb-10">
                 <div className="flex flex-wrap justify-center gap-2">
-                    {(['All', 'CookSuite', 'TraQify', 'Joint Journey'] as const).map((filter) => (
+                    {(['All', 'CookSuite', 'TraQify', 'Joint Journey', 'UsageTracker'] as const).map((filter) => (
                         <button
                             key={filter}
                             onClick={() => setActiveFilter(filter)}
@@ -210,6 +211,12 @@ function AppSection({ name, updates, formatFileSize, formatDate, getPlatformIcon
             accent: 'text-blue-400',
             bg: 'bg-blue-500/10',
             border: 'border-blue-500/20'
+        },
+        'UsageTracker': {
+            gradient: 'from-purple-500 to-pink-500',
+            accent: 'text-purple-400',
+            bg: 'bg-purple-500/10',
+            border: 'border-purple-500/20'
         }
     };
 
