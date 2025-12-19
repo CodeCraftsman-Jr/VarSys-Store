@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "appwrite": "^21.5.0",
+    "node-appwrite": "^21.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.10.1"
@@ -33,7 +34,14 @@
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
   },
-  "keywords": ["download", "updates", "appwrite", "mobile-apps", "react", "vite"],
+  "keywords": [
+    "download",
+    "updates",
+    "appwrite",
+    "mobile-apps",
+    "react",
+    "vite"
+  ],
   "author": "VarSys",
   "license": "MIT"
 }

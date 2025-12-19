@@ -24,6 +24,7 @@ export default function StorePage() {
 
     async function loadUpdates() {
         try {
+            console.log('Loading updates from database...');
             const response = await databases.listDocuments(
                 config.databaseId,
                 config.collectionId,
@@ -33,6 +34,9 @@ export default function StorePage() {
                     Query.limit(100)
                 ]
             );
+
+            console.log('Database response:', response);
+            console.log('Found documents:', response.documents.length);
 
             // Show all builds, not just latest
             const allUpdates = response.documents.map(doc => doc as unknown as AppUpdate);
