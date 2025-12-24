@@ -4,7 +4,7 @@ import { analytics, createTrackedDatabases } from './analytics';
 
 // Appwrite Configuration - Cloud
 const ENDPOINT = 'https://cloud.appwrite.io/v1';
-const PROJECT_ID = '692edd5d002346df067e';
+const PROJECT_ID = '69484cda0005910ebf51';
 const DATABASE_ID = 'traqify_db';
 const COLLECTION_ID = 'app_updates';
 const BUCKET_ID = 'app-updates';
