@@ -2,10 +2,10 @@
 import { Client, Databases, Storage, Account } from 'appwrite';
 import { analytics, createTrackedDatabases } from './analytics';
 
-// Appwrite Configuration - Cloud
+// Appwrite Configuration - VarSys Store Project
 const ENDPOINT = 'https://cloud.appwrite.io/v1';
-const PROJECT_ID = '69484cda0005910ebf51';
-const DATABASE_ID = 'traqify_db';
+const PROJECT_ID = '695215eb000105cdf565';
+const DATABASE_ID = 'varsys_store_db';
 const COLLECTION_ID = 'app_updates';
 const BUCKET_ID = 'app-updates';
 

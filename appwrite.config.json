@@ -1,9 +1,9 @@
 {
-    "projectId": "69484cda0005910ebf51",
+    "projectId": "695215eb000105cdf565",
     "endpoint": "https://cloud.appwrite.io/v1",
     "sites": [
         {
-            "$id": "NEW_SITE_ID_PLACEHOLDER",
+            "$id": "varsys-store",
             "name": "VarSys-Store",
             "enabled": true,
             "logging": true,
