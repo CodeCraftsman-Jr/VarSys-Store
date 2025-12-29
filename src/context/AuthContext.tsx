@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { account, config } from '../lib/appwrite';
+import { account } from '../lib/appwrite';
 
 // User type for Appwrite
 interface AppwriteUser {
