@@ -61,7 +61,7 @@ export default function AdminDashboardPage() {
             const appUpdates = updates.filter(u => u.app_name === appName);
             if (appUpdates.length > 0) {
                 // Get the latest version by version_code
-                const latest = appUpdates.reduce((prev, current) => 
+                const latest = appUpdates.reduce((prev, current) =>
                     current.version_code > prev.version_code ? current : prev
                 );
                 setPreviousVersion(latest);
@@ -116,8 +116,8 @@ export default function AdminDashboardPage() {
                 selectedFile,
                 [
                     Permission.read(Role.any()),
-                    Permission.update(Role.team('admin')),
-                    Permission.delete(Role.team('admin'))
+                    Permission.update(Role.label('admin')),
+                    Permission.delete(Role.label('admin'))
                 ]
             );
 
@@ -143,8 +143,8 @@ export default function AdminDashboardPage() {
                 },
                 [
                     Permission.read(Role.users()),
-                    Permission.update(Role.team('admin')),
-                    Permission.delete(Role.team('admin'))
+                    Permission.update(Role.label('admin')),
+                    Permission.delete(Role.label('admin'))
                 ]
             );
 
@@ -203,8 +203,8 @@ export default function AdminDashboardPage() {
                             <div className="w-px h-6 bg-white/20 hidden sm:block"></div>
                             <h1 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                                 <i className="fas fa-shield-alt text-purple-400"></i>
-                                <span className="hidden sm:inline">Admin Dashboard</span>
-                                <span className="sm:hidden">Dashboard</span>
+                                <span className="hidden sm:inline">Admin Dashboard (v1.1)</span>
+                                <span className="sm:hidden">Dashboard (v1.1)</span>
                             </h1>
                         </div>
                         <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
@@ -230,8 +230,8 @@ export default function AdminDashboardPage() {
                     <button
                         onClick={() => setActiveTab('releases')}
                         className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 ${activeTab === 'releases'
-                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
-                                : 'bg-white/5 text-purple-200 hover:bg-white/10 border border-white/10'
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
+                            : 'bg-white/5 text-purple-200 hover:bg-white/10 border border-white/10'
                             }`}
                     >
                         <i className="fas fa-list"></i>
@@ -241,8 +241,8 @@ export default function AdminDashboardPage() {
                     <button
                         onClick={() => setActiveTab('upload')}
                         className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 ${activeTab === 'upload'
-                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
-                                : 'bg-white/5 text-purple-200 hover:bg-white/10 border border-white/10'
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
+                            : 'bg-white/5 text-purple-200 hover:bg-white/10 border border-white/10'
                             }`}
                     >
                         <i className="fas fa-upload"></i>
@@ -317,8 +317,8 @@ function ReleasesTable({ updates, isLoading }: ReleasesTableProps) {
                                 <p className="text-purple-300 text-xs sm:text-sm">v{update.version} ({update.version_code})</p>
                             </div>
                             <span className={`text-xs px-2.5 py-1 rounded-full ${update.is_active
-                                    ? 'bg-green-500/20 text-green-300 border border-green-500/20'
-                                    : 'bg-gray-500/20 text-gray-300 border border-gray-500/20'
+                                ? 'bg-green-500/20 text-green-300 border border-green-500/20'
+                                : 'bg-gray-500/20 text-gray-300 border border-gray-500/20'
                                 }`}>
                                 {update.is_active ? 'Active' : 'Inactive'}
                             </span>
@@ -358,8 +358,8 @@ function ReleasesTable({ updates, isLoading }: ReleasesTableProps) {
                                 <td className="px-6 py-4 text-gray-400 text-sm">{new Date(update.released_at).toLocaleDateString()}</td>
                                 <td className="px-6 py-4">
                                     <span className={`text-xs px-3 py-1.5 rounded-full ${update.is_active
-                                            ? 'bg-green-500/20 text-green-300 border border-green-500/20'
-                                            : 'bg-gray-500/20 text-gray-300 border border-gray-500/20'
+                                        ? 'bg-green-500/20 text-green-300 border border-green-500/20'
+                                        : 'bg-gray-500/20 text-gray-300 border border-gray-500/20'
                                         }`}>
                                         {update.is_active ? 'Active' : 'Inactive'}
                                     </span>
