@@ -12,6 +12,7 @@ interface AppwriteUser {
     phone: string;
     phoneVerification: boolean;
     status: boolean;
+    labels: string[];
     prefs: Record<string, unknown>;
 }
 
@@ -29,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AppwriteUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const isAdmin = user ? config.adminUserIds.includes(user.$id) : false;
+    const isAdmin = user ? user.labels && user.labels.includes('admin') : false;
 
     useEffect(() => {
         checkSession();
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function checkSession() {
         try {
             const currentUser = await account.get();
-            setUser(currentUser);
+            setUser(currentUser as unknown as AppwriteUser);
         } catch (error) {
             // User not logged in - this is expected for public visitors
             setUser(null);
@@ -50,12 +51,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function login(email: string, password: string) {
         try {
             await account.createEmailPasswordSession(email, password);
-            const currentUser = await account.get();
+            const currentUser = await account.get() as unknown as AppwriteUser;
 
-            // Check if user is an admin
-            if (!config.adminUserIds.includes(currentUser.$id)) {
+            // Check if user is an admin by label
+            const hasAdminLabel = currentUser.labels && currentUser.labels.includes('admin');
+
+            if (!hasAdminLabel) {
+                console.error('❌ Login Failed: User missing "admin" label. Labels:', currentUser.labels);
                 await account.deleteSession('current');
-                throw new Error('You are not authorized to access the admin panel.');
+                throw new Error(`You are not authorized. You need the "admin" label.`);
             }
 
             setUser(currentUser);
