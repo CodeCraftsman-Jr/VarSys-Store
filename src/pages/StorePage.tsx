@@ -5,7 +5,7 @@ import { databases, config } from '../lib/appwrite';
 import { APP_METADATA, APP_GROUPS } from '../types/index.js';
 import type { AppUpdate } from '../types/index.js';
 
-type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'UsageTracker';
+type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'UsageTracker' | 'Volt Track' | 'DocuStore';
 
 /**
  * StorePage - Public page accessible to everyone without authentication
@@ -54,7 +54,9 @@ export default function StorePage() {
             'CookSuite': [],
             'TraQify': [],
             'Joint Journey': [],
-            'UsageTracker': []
+            'UsageTracker': [],
+            'Volt Track': [],
+            'DocuStore': []
         };
 
         updates.forEach((update) => {

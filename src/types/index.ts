@@ -63,6 +63,30 @@ export const APP_METADATA: Record<string, AppMetadata> = {
         color: 'purple',
         description: 'Real-time analytics dashboard for VarSys apps',
         tagline: 'Track, Analyze, Monitor Everything'
+    },
+    'Volt Track Mobile': {
+        icon: 'fa-bolt',
+        color: 'yellow',
+        description: 'Energy monitoring and power consumption tracking',
+        tagline: 'Power Up Your Energy Management'
+    },
+    'Volt Track Desktop': {
+        icon: 'fa-desktop',
+        color: 'yellow',
+        description: 'Desktop version for Windows',
+        tagline: 'Full-featured desktop experience'
+    },
+    'DocuStore Mobile': {
+        icon: 'fa-file-archive',
+        color: 'indigo',
+        description: 'Document management and storage solution',
+        tagline: 'Your Documents, Organized and Secure'
+    },
+    'DocuStore Desktop': {
+        icon: 'fa-desktop',
+        color: 'indigo',
+        description: 'Desktop version for Windows',
+        tagline: 'Full-featured desktop experience'
     }
 };
 
@@ -70,7 +94,9 @@ export const APP_GROUPS = {
     'CookSuite': ['CookSuite Mobile', 'CookSuite Desktop'],
     'TraQify': ['TraQify Mobile', 'TraQify Desktop'],
     'Joint Journey': ['Joint Journey Mobile', 'Joint Journey Desktop'],
-    'UsageTracker': ['Usage Tracker Mobile']
+    'UsageTracker': ['Usage Tracker Mobile'],
+    'Volt Track': ['Volt Track Mobile', 'Volt Track Desktop'],
+    'DocuStore': ['DocuStore Mobile', 'DocuStore Desktop']
 } as const;
 
 export type AppGroupName = keyof typeof APP_GROUPS;
