@@ -223,6 +223,18 @@ function AppSection({ name, updates, formatFileSize, formatDate, getPlatformIcon
             accent: 'text-purple-400',
             bg: 'bg-purple-500/10',
             border: 'border-purple-500/20'
+        },
+        'Volt Track': {
+            gradient: 'from-yellow-500 to-amber-500',
+            accent: 'text-yellow-400',
+            bg: 'bg-yellow-500/10',
+            border: 'border-yellow-500/20'
+        },
+        'DocuStore': {
+            gradient: 'from-indigo-500 to-purple-500',
+            accent: 'text-indigo-400',
+            bg: 'bg-indigo-500/10',
+            border: 'border-indigo-500/20'
         }
     };
 
