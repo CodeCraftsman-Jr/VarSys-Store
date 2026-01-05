@@ -33,7 +33,7 @@ interface AppData {
  */
 export default function StorePage() {
     const [updates, setUpdates] = useState<AppUpdate[]>([]);
-    const [apps, setApps] = useState<AppData[]>([]);
+    const [_apps, setApps] = useState<AppData[]>([]);
     const [appMetadata, setAppMetadata] = useState<Record<string, AppMetadata>>({});
     const [appGroups, setAppGroups] = useState<Record<string, string[]>>({});
     const [isLoading, setIsLoading] = useState(true);
@@ -56,13 +56,13 @@ export default function StorePage() {
                 APPS_COLLECTION_ID,
                 [Query.equal('is_active', true), Query.orderAsc('app_name'), Query.limit(100)]
             );
-            
+
             console.log('Apps response:', response);
             console.log('Found apps:', response.documents.length);
-            
+
             const appsData = response.documents as unknown as AppData[];
             setApps(appsData);
-            
+
             // Build APP_METADATA from database
             const metadata: Record<string, AppMetadata> = {};
             appsData.forEach(app => {
@@ -74,7 +74,7 @@ export default function StorePage() {
                 };
             });
             setAppMetadata(metadata);
-            
+
             // Build APP_GROUPS dynamically from app names
             const groups: Record<string, string[]> = {};
             appsData.forEach(app => {
@@ -86,10 +86,10 @@ export default function StorePage() {
                 groups[baseName].push(app.app_name);
             });
             setAppGroups(groups);
-            
+
             console.log('Loaded appMetadata:', metadata);
             console.log('Loaded appGroups:', groups);
-            
+
         } catch (err: any) {
             console.error('Error loading apps:', err);
             setError('Failed to load apps: ' + err.message);
@@ -144,17 +144,17 @@ export default function StorePage() {
 
     function groupByMonth(updates: AppUpdate[]): Record<string, AppUpdate[]> {
         const grouped: Record<string, AppUpdate[]> = {};
-        
+
         updates.forEach(update => {
             const date = new Date(update.released_at);
             const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-            
+
             if (!grouped[monthKey]) {
                 grouped[monthKey] = [];
             }
             grouped[monthKey].push(update);
         });
-        
+
         return grouped;
     }
 
@@ -349,7 +349,7 @@ function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, ge
         'production': [],
         'development': []
     };
-    
+
     updates.forEach(update => {
         const buildType = update.build_type || 'production';
         // Ensure the array exists before pushing
@@ -384,20 +384,17 @@ function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, ge
                             onClick={() => toggleSection(buildType)}
                             className="w-full flex items-center gap-3 ml-4 hover:bg-white/5 p-3 rounded-lg transition-colors cursor-pointer"
                         >
-                            <i className={`fas ${buildType === 'production' ? 'fa-rocket' : 'fa-code'} text-lg ${
-                                buildType === 'production' ? 'text-green-400' : 'text-yellow-400'
-                            }`}></i>
-                            <h3 className={`text-xl font-bold ${
-                                buildType === 'production' ? 'text-green-400' : 'text-yellow-400'
-                            } capitalize`}>
+                            <i className={`fas ${buildType === 'production' ? 'fa-rocket' : 'fa-code'} text-lg ${buildType === 'production' ? 'text-green-400' : 'text-yellow-400'
+                                }`}></i>
+                            <h3 className={`text-xl font-bold ${buildType === 'production' ? 'text-green-400' : 'text-yellow-400'
+                                } capitalize`}>
                                 {buildType === 'production' ? '🚀 Production' : '🔧 Development'}
                             </h3>
                             <div className="flex-1 h-px bg-white/10"></div>
-                            <span className={`text-xs px-3 py-1 rounded-full ${
-                                buildType === 'production' 
-                                    ? 'bg-green-500/20 text-green-400' 
+                            <span className={`text-xs px-3 py-1 rounded-full ${buildType === 'production'
+                                    ? 'bg-green-500/20 text-green-400'
                                     : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
+                                }`}>
                                 {buildUpdates.length} {buildUpdates.length === 1 ? 'build' : 'builds'}
                             </span>
                             <i className={`fas fa-chevron-${collapsedSections[buildType] ? 'down' : 'up'} text-sm text-gray-400`}></i>
@@ -418,99 +415,98 @@ function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, ge
 
                                 {/* Cards Grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {monthlyGroups[month].map((update) => {
-                            const metadata = appMetadata[update.app_name] || {
-                                icon: 'fa-mobile-alt',
-                                description: 'Application',
-                                tagline: 'Download the latest version'
-                            };
-                            const buildType = update.build_type || 'production';
+                                    {monthlyGroups[month].map((update) => {
+                                        const metadata = appMetadata[update.app_name] || {
+                                            icon: 'fa-mobile-alt',
+                                            description: 'Application',
+                                            tagline: 'Download the latest version'
+                                        };
+                                        const buildType = update.build_type || 'production';
 
-                            return (
-                                <div
-                                    key={update.$id}
-                                    className="bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl"
-                                >
-                                    {/* Card Header */}
-                                    <div className={`bg-gradient-to-r ${colors.gradient} p-5`}>
-                                        <div className="flex items-start justify-between mb-3">
-                                            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                                                <i className={`fas ${metadata.icon} text-xl text-white`}></i>
+                                        return (
+                                            <div
+                                                key={update.$id}
+                                                className="bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl"
+                                            >
+                                                {/* Card Header */}
+                                                <div className={`bg-gradient-to-r ${colors.gradient} p-5`}>
+                                                    <div className="flex items-start justify-between mb-3">
+                                                        <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                                            <i className={`fas ${metadata.icon} text-xl text-white`}></i>
+                                                        </div>
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            <span className="bg-white/20 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                                                v{update.version}
+                                                            </span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${buildType === 'development'
+                                                                    ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                                                                    : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                                                }`}>
+                                                                <i className={`fas ${buildType === 'development' ? 'fa-code' : 'fa-rocket'} mr-1`}></i>
+                                                                {buildType === 'development' ? 'Dev' : 'Prod'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <h3 className="text-xl font-bold text-white mb-1">{update.app_name}</h3>
+                                                    <p className="text-white/70 text-sm">{metadata.tagline}</p>
+                                                </div>
+
+                                                {/* Card Body */}
+                                                <div className="p-5">
+                                                    <p className="text-gray-300 text-sm mb-4">{metadata.description}</p>
+
+                                                    {/* Info Grid */}
+                                                    <div className="grid grid-cols-2 gap-2 mb-4 text-xs text-gray-400">
+                                                        <div className="flex items-center gap-2">
+                                                            <i className={`fab ${getPlatformIcon(update.platform)} w-4 text-center`}></i>
+                                                            <span className="capitalize">{update.platform}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <i className="fas fa-calendar w-4 text-center"></i>
+                                                            <span>{formatDate(update.released_at)}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <i className="fas fa-file w-4 text-center"></i>
+                                                            <span>{formatFileSize(update.file_size)}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <i className="fas fa-code-branch w-4 text-center"></i>
+                                                            <span>Build {update.build_number}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Release Notes */}
+                                                    {update.release_notes && (
+                                                        <div className={`${colors.bg} ${colors.border} border rounded-lg p-3 mb-4`}>
+                                                            <p className="text-xs font-semibold text-gray-300 mb-1">What's New:</p>
+                                                            <p className="text-xs text-gray-400">{update.release_notes}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Footer */}
+                                                    <div className="flex items-center justify-between">
+                                                        <span className={`text-xs px-2.5 py-1 rounded-full ${update.is_mandatory
+                                                            ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                                            : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                                            }`}>
+                                                            {update.is_mandatory ? 'Required' : 'Optional'}
+                                                        </span>
+                                                        <a
+                                                            href={update.file_url}
+                                                            className={`bg-gradient-to-r ${colors.gradient} text-white px-4 py-2 rounded-lg font-medium text-sm transition-all hover:opacity-90 flex items-center gap-2`}
+                                                            download
+                                                        >
+                                                            <i className="fas fa-download"></i>
+                                                            Download
+                                                        </a>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col items-end gap-2">
-                                                <span className="bg-white/20 text-white px-3 py-1 rounded-full font-bold text-sm">
-                                                    v{update.version}
-                                                </span>
-                                                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                                                    buildType === 'development' 
-                                                        ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' 
-                                                        : 'bg-green-500/20 text-green-300 border border-green-500/30'
-                                                }`}>
-                                                    <i className={`fas ${buildType === 'development' ? 'fa-code' : 'fa-rocket'} mr-1`}></i>
-                                                    {buildType === 'development' ? 'Dev' : 'Prod'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                <h3 className="text-xl font-bold text-white mb-1">{update.app_name}</h3>
-                                <p className="text-white/70 text-sm">{metadata.tagline}</p>
-                            </div>
-
-                            {/* Card Body */}
-                            <div className="p-5">
-                                <p className="text-gray-300 text-sm mb-4">{metadata.description}</p>
-
-                                {/* Info Grid */}
-                                <div className="grid grid-cols-2 gap-2 mb-4 text-xs text-gray-400">
-                                    <div className="flex items-center gap-2">
-                                        <i className={`fab ${getPlatformIcon(update.platform)} w-4 text-center`}></i>
-                                        <span className="capitalize">{update.platform}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <i className="fas fa-calendar w-4 text-center"></i>
-                                        <span>{formatDate(update.released_at)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <i className="fas fa-file w-4 text-center"></i>
-                                        <span>{formatFileSize(update.file_size)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <i className="fas fa-code-branch w-4 text-center"></i>
-                                        <span>Build {update.build_number}</span>
-                                    </div>
-                                </div>
-
-                                {/* Release Notes */}
-                                {update.release_notes && (
-                                    <div className={`${colors.bg} ${colors.border} border rounded-lg p-3 mb-4`}>
-                                        <p className="text-xs font-semibold text-gray-300 mb-1">What's New:</p>
-                                        <p className="text-xs text-gray-400">{update.release_notes}</p>
-                                    </div>
-                                )}
-
-                                {/* Footer */}
-                                <div className="flex items-center justify-between">
-                                    <span className={`text-xs px-2.5 py-1 rounded-full ${update.is_mandatory
-                                        ? 'bg-red-500/20 text-red-300 border border-red-500/30'
-                                        : 'bg-green-500/20 text-green-300 border border-green-500/30'
-                                        }`}>
-                                        {update.is_mandatory ? 'Required' : 'Optional'}
-                                    </span>
-                                    <a
-                                        href={update.file_url}
-                                        className={`bg-gradient-to-r ${colors.gradient} text-white px-4 py-2 rounded-lg font-medium text-sm transition-all hover:opacity-90 flex items-center gap-2`}
-                                        download
-                                    >
-                                        <i className="fas fa-download"></i>
-                                        Download
-                                    </a>
-                                    </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
-                        );
-                    })}
-                    </div>
-                </div>
-            ))}
+                        ))}
                     </div>
                 );
             })}

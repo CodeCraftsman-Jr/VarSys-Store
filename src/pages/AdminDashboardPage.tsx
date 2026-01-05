@@ -21,7 +21,7 @@ export default function AdminDashboardPage() {
     const navigate = useNavigate();
 
     const [updates, setUpdates] = useState<AppUpdate[]>([]);
-    const [apps, setApps] = useState<AppData[]>([]);
+    const [_apps, setApps] = useState<AppData[]>([]);
     const [appNames, setAppNames] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'releases' | 'upload' | 'manage-apps'>('releases');
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
             setApps(appsData);
             const names = appsData.map(app => app.app_name).sort();
             setAppNames(names);
-            
+
             // Set default app name if not set
             if (names.length > 0 && !uploadForm.appName) {
                 setUploadForm(prev => ({ ...prev, appName: names[0] }));
@@ -371,11 +371,10 @@ function ReleasesTable({ updates, isLoading }: ReleasesTableProps) {
                             <div><i className="fas fa-file mr-2"></i>{(update.file_size / 1024 / 1024).toFixed(2)} MB</div>
                             <div><i className="fas fa-calendar mr-2"></i>{new Date(update.released_at).toLocaleDateString()}</div>
                             <div>
-                                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                                    (update.build_type || 'production') === 'development'
-                                        ? 'bg-yellow-500/20 text-yellow-300'
-                                        : 'bg-green-500/20 text-green-300'
-                                }`}>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${(update.build_type || 'production') === 'development'
+                                    ? 'bg-yellow-500/20 text-yellow-300'
+                                    : 'bg-green-500/20 text-green-300'
+                                    }`}>
                                     {(update.build_type || 'production') === 'development' ? '🔧 Dev' : '🚀 Prod'}
                                 </span>
                             </div>
@@ -407,11 +406,10 @@ function ReleasesTable({ updates, isLoading }: ReleasesTableProps) {
                                     <span className="text-gray-500 text-sm ml-2">({update.version_code})</span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <span className={`text-xs px-2.5 py-1 rounded-full ${
-                                        (update.build_type || 'production') === 'development'
-                                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                                            : 'bg-green-500/20 text-green-300 border border-green-500/30'
-                                    }`}>
+                                    <span className={`text-xs px-2.5 py-1 rounded-full ${(update.build_type || 'production') === 'development'
+                                        ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                                        : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                        }`}>
                                         {(update.build_type || 'production') === 'development' ? '🔧 Development' : '🚀 Production'}
                                     </span>
                                 </td>
