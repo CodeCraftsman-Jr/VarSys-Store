@@ -44,9 +44,24 @@ export default function AdminDashboardPage() {
 
     useEffect(() => {
         if (!authLoading && !user) {
-            navigate('/admin');
+            navigate('/admin', { replace: true });
         }
     }, [user, authLoading, navigate]);
+
+    // Prevent back navigation - push current state to history
+    useEffect(() => {
+        if (user) {
+            // Replace entry and push a new one to prevent going back
+            window.history.pushState(null, '', window.location.href);
+
+            const handlePopState = () => {
+                window.history.pushState(null, '', window.location.href);
+            };
+
+            window.addEventListener('popstate', handlePopState);
+            return () => window.removeEventListener('popstate', handlePopState);
+        }
+    }, [user]);
 
     useEffect(() => {
         if (user) {

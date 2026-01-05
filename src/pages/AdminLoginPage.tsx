@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,8 +7,15 @@ export default function AdminLoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const { login } = useAuth();
+    const { user, isLoading: authLoading, login } = useAuth();
     const navigate = useNavigate();
+
+    // Redirect to dashboard if already logged in
+    useEffect(() => {
+        if (!authLoading && user) {
+            navigate('/admin/dashboard', { replace: true });
+        }
+    }, [user, authLoading, navigate]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -17,7 +24,7 @@ export default function AdminLoginPage() {
 
         try {
             await login(email, password);
-            navigate('/admin/dashboard');
+            navigate('/admin/dashboard', { replace: true });
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Login failed. Please check your credentials.';
             setError(errorMessage);

@@ -187,9 +187,11 @@ export default function StorePage() {
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-purple-200 text-lg">Loading available updates...</p>
+                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-purple-200 text-base font-medium">Loading updates...</p>
+                    </div>
                 </div>
             </div>
         );
