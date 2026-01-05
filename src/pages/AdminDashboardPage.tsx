@@ -4,31 +4,36 @@ import { Query, ID, Permission, Role } from 'appwrite';
 import { useAuth } from '../context/AuthContext';
 import { databases, storage, config } from '../lib/appwrite';
 import type { AppUpdate } from '../types/index.js';
+import { AppManagementTab } from '../components/AppManagementTab';
 
-const ALL_APP_NAMES = [
-    'CookSuite Mobile',
-    'CookSuite Desktop',
-    'TraQify Mobile',
-    'TraQify Desktop',
-    'Joint Journey Mobile',
-    'Joint Journey Desktop'
-];
+const APPS_COLLECTION_ID = 'apps';
+
+interface AppData {
+    app_name: string;
+    display_name: string;
+    icon: string;
+    color: string;
+    is_active: boolean;
+}
 
 export default function AdminDashboardPage() {
     const { user, logout, isLoading: authLoading } = useAuth();
     const navigate = useNavigate();
 
     const [updates, setUpdates] = useState<AppUpdate[]>([]);
+    const [apps, setApps] = useState<AppData[]>([]);
+    const [appNames, setAppNames] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'releases' | 'upload'>('releases');
+    const [activeTab, setActiveTab] = useState<'releases' | 'upload' | 'manage-apps'>('releases');
     const [previousVersion, setPreviousVersion] = useState<AppUpdate | null>(null);
 
     // Upload form state
     const [uploadForm, setUploadForm] = useState({
-        appName: ALL_APP_NAMES[0],
+        appName: '',
         version: '',
         versionCode: '',
         buildNumber: '',
+        buildType: 'production' as 'development' | 'production',
         releaseNotes: '',
         isMandatory: false
     });
@@ -45,6 +50,7 @@ export default function AdminDashboardPage() {
 
     useEffect(() => {
         if (user) {
+            loadApps();
             loadAllUpdates();
         }
     }, [user]);
@@ -55,6 +61,27 @@ export default function AdminDashboardPage() {
             loadPreviousVersion(uploadForm.appName);
         }
     }, [uploadForm.appName, updates]);
+
+    async function loadApps() {
+        try {
+            const response = await databases.listDocuments(
+                config.databaseId,
+                APPS_COLLECTION_ID,
+                [Query.equal('is_active', true), Query.orderAsc('app_name'), Query.limit(100)]
+            );
+            const appsData = response.documents as unknown as AppData[];
+            setApps(appsData);
+            const names = appsData.map(app => app.app_name).sort();
+            setAppNames(names);
+            
+            // Set default app name if not set
+            if (names.length > 0 && !uploadForm.appName) {
+                setUploadForm(prev => ({ ...prev, appName: names[0] }));
+            }
+        } catch (err) {
+            console.error('Error loading apps:', err);
+        }
+    }
 
     async function loadPreviousVersion(appName: string) {
         try {
@@ -133,6 +160,7 @@ export default function AdminDashboardPage() {
                     version: uploadForm.version,
                     version_code: parseInt(uploadForm.versionCode),
                     build_number: parseInt(uploadForm.buildNumber),
+                    build_type: uploadForm.buildType,
                     file_id: file.$id,
                     file_url: fileUrl,
                     file_size: selectedFile.size,
@@ -150,15 +178,17 @@ export default function AdminDashboardPage() {
 
             setUploadSuccess(true);
             setUploadForm({
-                appName: ALL_APP_NAMES[0],
+                appName: appNames[0] || '',
                 version: '',
                 versionCode: '',
                 buildNumber: '',
+                buildType: 'production',
                 releaseNotes: '',
                 isMandatory: false
             });
             setSelectedFile(null);
             loadAllUpdates();
+            await loadApps(); // Reload apps in case new app was added
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to upload. Please try again.';
             setUploadError(errorMessage);
@@ -249,6 +279,17 @@ export default function AdminDashboardPage() {
                         <span className="hidden sm:inline">Upload New</span>
                         <span className="sm:hidden">Upload</span>
                     </button>
+                    <button
+                        onClick={() => setActiveTab('manage-apps')}
+                        className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 ${activeTab === 'manage-apps'
+                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
+                            : 'bg-white/5 text-purple-200 hover:bg-white/10 border border-white/10'
+                            }`}
+                    >
+                        <i className="fas fa-cog"></i>
+                        <span className="hidden sm:inline">Manage Apps</span>
+                        <span className="sm:hidden">Apps</span>
+                    </button>
                 </div>
             </div>
 
@@ -256,7 +297,7 @@ export default function AdminDashboardPage() {
             <main className="relative max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
                 {activeTab === 'releases' ? (
                     <ReleasesTable updates={updates} isLoading={isLoading} />
-                ) : (
+                ) : activeTab === 'upload' ? (
                     <UploadForm
                         form={uploadForm}
                         setForm={setUploadForm}
@@ -266,9 +307,11 @@ export default function AdminDashboardPage() {
                         error={uploadError}
                         success={uploadSuccess}
                         onSubmit={handleUpload}
-                        appNames={ALL_APP_NAMES}
+                        appNames={appNames}
                         previousVersion={previousVersion}
                     />
+                ) : (
+                    <AppManagementTab />
                 )}
             </main>
         </div>
@@ -326,7 +369,16 @@ function ReleasesTable({ updates, isLoading }: ReleasesTableProps) {
                         <div className="grid grid-cols-2 gap-2 text-xs text-gray-400">
                             <div><i className="fas fa-desktop mr-2"></i>{update.platform}</div>
                             <div><i className="fas fa-file mr-2"></i>{(update.file_size / 1024 / 1024).toFixed(2)} MB</div>
-                            <div className="col-span-2"><i className="fas fa-calendar mr-2"></i>{new Date(update.released_at).toLocaleDateString()}</div>
+                            <div><i className="fas fa-calendar mr-2"></i>{new Date(update.released_at).toLocaleDateString()}</div>
+                            <div>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                    (update.build_type || 'production') === 'development'
+                                        ? 'bg-yellow-500/20 text-yellow-300'
+                                        : 'bg-green-500/20 text-green-300'
+                                }`}>
+                                    {(update.build_type || 'production') === 'development' ? '🔧 Dev' : '🚀 Prod'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -339,6 +391,7 @@ function ReleasesTable({ updates, isLoading }: ReleasesTableProps) {
                         <tr className="text-left text-purple-300 text-sm">
                             <th className="px-6 py-4 font-semibold">App Name</th>
                             <th className="px-6 py-4 font-semibold">Version</th>
+                            <th className="px-6 py-4 font-semibold">Build Type</th>
                             <th className="px-6 py-4 font-semibold">Platform</th>
                             <th className="px-6 py-4 font-semibold">Size</th>
                             <th className="px-6 py-4 font-semibold">Released</th>
@@ -352,6 +405,15 @@ function ReleasesTable({ updates, isLoading }: ReleasesTableProps) {
                                 <td className="px-6 py-4">
                                     <span className="text-purple-300">v{update.version}</span>
                                     <span className="text-gray-500 text-sm ml-2">({update.version_code})</span>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <span className={`text-xs px-2.5 py-1 rounded-full ${
+                                        (update.build_type || 'production') === 'development'
+                                            ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                                            : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                    }`}>
+                                        {(update.build_type || 'production') === 'development' ? '🔧 Development' : '🚀 Production'}
+                                    </span>
                                 </td>
                                 <td className="px-6 py-4 text-gray-300 capitalize">{update.platform}</td>
                                 <td className="px-6 py-4 text-gray-300">{(update.file_size / 1024 / 1024).toFixed(2)} MB</td>
@@ -378,6 +440,7 @@ interface UploadFormData {
     version: string;
     versionCode: string;
     buildNumber: string;
+    buildType: 'development' | 'production';
     releaseNotes: string;
     isMandatory: boolean;
 }
@@ -479,6 +542,22 @@ function UploadForm({
                                 {appNames.map((name) => (
                                     <option key={name} value={name} className="bg-slate-900">{name}</option>
                                 ))}
+                            </select>
+                            <i className="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    {/* Build Type */}
+                    <div>
+                        <label className="block text-sm font-medium text-purple-200 mb-2">Build Type</label>
+                        <div className="relative">
+                            <select
+                                value={form.buildType}
+                                onChange={(e) => setForm({ ...form, buildType: e.target.value as 'development' | 'production' })}
+                                className="w-full px-4 py-3 sm:py-3.5 bg-white/5 border border-white/10 rounded-xl sm:rounded-2xl text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 appearance-none text-sm sm:text-base"
+                            >
+                                <option value="production" className="bg-slate-900">🚀 Production (Stable Release)</option>
+                                <option value="development" className="bg-slate-900">🔧 Development (Testing Build)</option>
                             </select>
                             <i className="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none"></i>
                         </div>

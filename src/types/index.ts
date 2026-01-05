@@ -5,6 +5,7 @@ export interface AppUpdate {
     version: string;
     version_code: number;
     build_number: number;
+    build_type?: 'development' | 'production'; // Optional for backward compatibility
     file_id: string;
     file_url: string;
     file_size: number;

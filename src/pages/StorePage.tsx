@@ -2,10 +2,29 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Query } from 'appwrite';
 import { databases, config } from '../lib/appwrite';
-import { APP_METADATA, APP_GROUPS } from '../types/index.js';
 import type { AppUpdate } from '../types/index.js';
 
+const APPS_COLLECTION_ID = 'apps';
+
 type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'UsageTracker' | 'Volt Track' | 'DocuStore';
+
+interface AppMetadata {
+    icon: string;
+    color: string;
+    description: string;
+    tagline: string;
+}
+
+interface AppData {
+    app_name: string;
+    display_name: string;
+    icon: string;
+    color: string;
+    description: string;
+    tagline: string;
+    platform_category: string;
+    is_active: boolean;
+}
 
 /**
  * StorePage - Public page accessible to everyone without authentication
@@ -14,13 +33,68 @@ type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'UsageTracker' |
  */
 export default function StorePage() {
     const [updates, setUpdates] = useState<AppUpdate[]>([]);
+    const [apps, setApps] = useState<AppData[]>([]);
+    const [appMetadata, setAppMetadata] = useState<Record<string, AppMetadata>>({});
+    const [appGroups, setAppGroups] = useState<Record<string, string[]>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<AppGroupName | 'All'>('All');
 
     useEffect(() => {
-        loadUpdates();
+        async function initializePage() {
+            await Promise.all([loadApps(), loadUpdates()]);
+            setIsLoading(false);
+        }
+        initializePage();
     }, []);
+
+    async function loadApps() {
+        try {
+            console.log('Loading apps from database...');
+            const response = await databases.listDocuments(
+                config.databaseId,
+                APPS_COLLECTION_ID,
+                [Query.equal('is_active', true), Query.orderAsc('app_name'), Query.limit(100)]
+            );
+            
+            console.log('Apps response:', response);
+            console.log('Found apps:', response.documents.length);
+            
+            const appsData = response.documents as unknown as AppData[];
+            setApps(appsData);
+            
+            // Build APP_METADATA from database
+            const metadata: Record<string, AppMetadata> = {};
+            appsData.forEach(app => {
+                metadata[app.app_name] = {
+                    icon: app.icon,
+                    color: app.color,
+                    description: app.description,
+                    tagline: app.tagline
+                };
+            });
+            setAppMetadata(metadata);
+            
+            // Build APP_GROUPS dynamically from app names
+            const groups: Record<string, string[]> = {};
+            appsData.forEach(app => {
+                // Extract base name (e.g., "TraQify" from "TraQify Mobile")
+                const baseName = app.app_name.replace(/ (Mobile|Desktop|Web)$/, '');
+                if (!groups[baseName]) {
+                    groups[baseName] = [];
+                }
+                groups[baseName].push(app.app_name);
+            });
+            setAppGroups(groups);
+            
+            console.log('Loaded appMetadata:', metadata);
+            console.log('Loaded appGroups:', groups);
+            
+        } catch (err: any) {
+            console.error('Error loading apps:', err);
+            setError('Failed to load apps: ' + err.message);
+        }
+    }
 
     async function loadUpdates() {
         try {
@@ -44,8 +118,6 @@ export default function StorePage() {
         } catch (err) {
             console.error('Error loading updates:', err);
             setError('Failed to load updates');
-        } finally {
-            setIsLoading(false);
         }
     }
 
@@ -60,13 +132,29 @@ export default function StorePage() {
         };
 
         updates.forEach((update) => {
-            for (const [group, appNames] of Object.entries(APP_GROUPS)) {
+            for (const [group, appNames] of Object.entries(appGroups)) {
                 if ((appNames as readonly string[]).includes(update.app_name)) {
                     grouped[group as AppGroupName].push(update);
                 }
             }
         });
 
+        return grouped;
+    }
+
+    function groupByMonth(updates: AppUpdate[]): Record<string, AppUpdate[]> {
+        const grouped: Record<string, AppUpdate[]> = {};
+        
+        updates.forEach(update => {
+            const date = new Date(update.released_at);
+            const monthKey = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+            
+            if (!grouped[monthKey]) {
+                grouped[monthKey] = [];
+            }
+            grouped[monthKey].push(update);
+        });
+        
         return grouped;
     }
 
@@ -126,6 +214,7 @@ export default function StorePage() {
 
             {/* Filter Tabs */}
             <div className="max-w-6xl mx-auto px-4 mb-10">
+                {/* App Filter */}
                 <div className="flex flex-wrap justify-center gap-2">
                     {(['All', 'CookSuite', 'TraQify', 'Joint Journey', 'UsageTracker'] as const).map((filter) => (
                         <button
@@ -164,9 +253,11 @@ export default function StorePage() {
                                 key={groupName}
                                 name={groupName as AppGroupName}
                                 updates={groupUpdates}
+                                appMetadata={appMetadata}
                                 formatFileSize={formatFileSize}
                                 formatDate={formatDate}
                                 getPlatformIcon={getPlatformIcon}
+                                groupByMonth={groupByMonth}
                             />
                         ))}
                     </div>
@@ -193,12 +284,23 @@ export default function StorePage() {
 interface AppSectionProps {
     name: AppGroupName;
     updates: AppUpdate[];
+    appMetadata: Record<string, AppMetadata>;
     formatFileSize: (bytes: number) => string;
     formatDate: (dateStr: string) => string;
     getPlatformIcon: (platform: string) => string;
+    groupByMonth: (updates: AppUpdate[]) => Record<string, AppUpdate[]>;
 }
 
-function AppSection({ name, updates, formatFileSize, formatDate, getPlatformIcon }: AppSectionProps) {
+function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, getPlatformIcon, groupByMonth }: AppSectionProps) {
+    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+
+    const toggleSection = (buildType: string) => {
+        setCollapsedSections(prev => ({
+            ...prev,
+            [buildType]: !prev[buildType]
+        }));
+    };
+
     const colorConfig = {
         'CookSuite': {
             gradient: 'from-orange-500 to-red-500',
@@ -242,38 +344,113 @@ function AppSection({ name, updates, formatFileSize, formatDate, getPlatformIcon
 
     if (updates.length === 0) return null;
 
+    // Group by build type first
+    const buildTypeGroups: Record<string, AppUpdate[]> = {
+        'production': [],
+        'development': []
+    };
+    
+    updates.forEach(update => {
+        const buildType = update.build_type || 'production';
+        // Ensure the array exists before pushing
+        if (!buildTypeGroups[buildType]) {
+            buildTypeGroups[buildType] = [];
+        }
+        buildTypeGroups[buildType].push(update);
+    });
+
     return (
-        <section>
+        <section className="space-y-10">
             {/* Section Header */}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4">
                 <div className={`w-1.5 h-8 bg-gradient-to-b ${colors.gradient} rounded-full`}></div>
                 <h2 className={`text-2xl md:text-3xl font-bold ${colors.accent}`}>{name}</h2>
             </div>
 
-            {/* Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {updates.map((update) => {
-                    const metadata = APP_METADATA[update.app_name] || {
-                        icon: 'fa-mobile-alt',
-                        description: 'Application',
-                        tagline: 'Download the latest version'
-                    };
+            {/* Group by Build Type, then by Month */}
+            {(['production', 'development'] as const).map(buildType => {
+                const buildUpdates = buildTypeGroups[buildType];
+                if (buildUpdates.length === 0) return null;
 
-                    return (
-                        <div
-                            key={update.$id}
-                            className="bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl"
+                const monthlyGroups = groupByMonth(buildUpdates);
+                const sortedMonths = Object.keys(monthlyGroups).sort((a, b) => {
+                    return new Date(b).getTime() - new Date(a).getTime();
+                });
+
+                return (
+                    <div key={buildType} className="space-y-6">
+                        {/* Build Type Header - Collapsible */}
+                        <button
+                            onClick={() => toggleSection(buildType)}
+                            className="w-full flex items-center gap-3 ml-4 hover:bg-white/5 p-3 rounded-lg transition-colors cursor-pointer"
                         >
-                            {/* Card Header */}
-                            <div className={`bg-gradient-to-r ${colors.gradient} p-5`}>
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                                        <i className={`fas ${metadata.icon} text-xl text-white`}></i>
-                                    </div>
-                                    <span className="bg-white/20 text-white px-3 py-1 rounded-full font-bold text-sm">
-                                        v{update.version}
+                            <i className={`fas ${buildType === 'production' ? 'fa-rocket' : 'fa-code'} text-lg ${
+                                buildType === 'production' ? 'text-green-400' : 'text-yellow-400'
+                            }`}></i>
+                            <h3 className={`text-xl font-bold ${
+                                buildType === 'production' ? 'text-green-400' : 'text-yellow-400'
+                            } capitalize`}>
+                                {buildType === 'production' ? '🚀 Production' : '🔧 Development'}
+                            </h3>
+                            <div className="flex-1 h-px bg-white/10"></div>
+                            <span className={`text-xs px-3 py-1 rounded-full ${
+                                buildType === 'production' 
+                                    ? 'bg-green-500/20 text-green-400' 
+                                    : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                                {buildUpdates.length} {buildUpdates.length === 1 ? 'build' : 'builds'}
+                            </span>
+                            <i className={`fas fa-chevron-${collapsedSections[buildType] ? 'down' : 'up'} text-sm text-gray-400`}></i>
+                        </button>
+
+                        {/* Group by Month - Collapsible Content */}
+                        {!collapsedSections[buildType] && sortedMonths.map(month => (
+                            <div key={month} className="space-y-4 ml-8">
+                                {/* Month Header */}
+                                <div className="flex items-center gap-3 mb-4">
+                                    <i className="fas fa-calendar-alt text-purple-400 text-lg"></i>
+                                    <h4 className="text-lg font-semibold text-purple-300">{month}</h4>
+                                    <div className="flex-1 h-px bg-white/10"></div>
+                                    <span className="text-xs text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full">
+                                        {monthlyGroups[month].length} {monthlyGroups[month].length === 1 ? 'build' : 'builds'}
                                     </span>
                                 </div>
+
+                                {/* Cards Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {monthlyGroups[month].map((update) => {
+                            const metadata = appMetadata[update.app_name] || {
+                                icon: 'fa-mobile-alt',
+                                description: 'Application',
+                                tagline: 'Download the latest version'
+                            };
+                            const buildType = update.build_type || 'production';
+
+                            return (
+                                <div
+                                    key={update.$id}
+                                    className="bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl"
+                                >
+                                    {/* Card Header */}
+                                    <div className={`bg-gradient-to-r ${colors.gradient} p-5`}>
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                                <i className={`fas ${metadata.icon} text-xl text-white`}></i>
+                                            </div>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <span className="bg-white/20 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                                    v{update.version}
+                                                </span>
+                                                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                                    buildType === 'development' 
+                                                        ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30' 
+                                                        : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                                }`}>
+                                                    <i className={`fas ${buildType === 'development' ? 'fa-code' : 'fa-rocket'} mr-1`}></i>
+                                                    {buildType === 'development' ? 'Dev' : 'Prod'}
+                                                </span>
+                                            </div>
+                                        </div>
                                 <h3 className="text-xl font-bold text-white mb-1">{update.app_name}</h3>
                                 <p className="text-white/70 text-sm">{metadata.tagline}</p>
                             </div>
@@ -326,12 +503,17 @@ function AppSection({ name, updates, formatFileSize, formatDate, getPlatformIcon
                                         <i className="fas fa-download"></i>
                                         Download
                                     </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                    </div>
+                </div>
+            ))}
+                    </div>
+                );
+            })}
         </section>
     );
 }
