@@ -216,7 +216,7 @@ export default function StorePage() {
             <div className="max-w-6xl mx-auto px-4 mb-10">
                 {/* App Filter */}
                 <div className="flex flex-wrap justify-center gap-2">
-                    {(['All', 'CookSuite', 'TraQify', 'Joint Journey', 'UsageTracker'] as const).map((filter) => (
+                    {(['All', 'CookSuite', 'TraQify', 'Joint Journey', 'UsageTracker', 'Volt Track', 'DocuStore'] as const).map((filter) => (
                         <button
                             key={filter}
                             onClick={() => setActiveFilter(filter)}
@@ -392,8 +392,8 @@ function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, ge
                             </h3>
                             <div className="flex-1 h-px bg-white/10"></div>
                             <span className={`text-xs px-3 py-1 rounded-full ${buildType === 'production'
-                                    ? 'bg-green-500/20 text-green-400'
-                                    : 'bg-yellow-500/20 text-yellow-400'
+                                ? 'bg-green-500/20 text-green-400'
+                                : 'bg-yellow-500/20 text-yellow-400'
                                 }`}>
                                 {buildUpdates.length} {buildUpdates.length === 1 ? 'build' : 'builds'}
                             </span>
@@ -439,8 +439,8 @@ function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, ge
                                                                 v{update.version}
                                                             </span>
                                                             <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${buildType === 'development'
-                                                                    ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                                                                    : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                                                ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                                                                : 'bg-green-500/20 text-green-300 border border-green-500/30'
                                                                 }`}>
                                                                 <i className={`fas ${buildType === 'development' ? 'fa-code' : 'fa-rocket'} mr-1`}></i>
                                                                 {buildType === 'development' ? 'Dev' : 'Prod'}
