@@ -163,7 +163,7 @@ export default function AdminDashboardPage() {
                 ]
             );
 
-            const fileUrl = `https://cloud.appwrite.io/v1/storage/buckets/${config.bucketId}/files/${file.$id}/download?project=${config.projectId}&filename=${encodeURIComponent(selectedFile.name)}`;
+            const fileUrl = `https://fra.cloud.appwrite.io/v1/storage/buckets/${config.bucketId}/files/${file.$id}/download?project=${config.projectId}&filename=${encodeURIComponent(selectedFile.name)}`;
 
             await databases.createDocument(
                 config.databaseId,

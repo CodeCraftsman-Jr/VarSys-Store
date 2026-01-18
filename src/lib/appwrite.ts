@@ -2,8 +2,8 @@
 import { Client, Databases, Storage, Account } from 'appwrite';
 import { analytics, createTrackedDatabases } from './analytics';
 
-// Appwrite Configuration - VarSys Store Project
-const ENDPOINT = 'https://cloud.appwrite.io/v1';
+// Appwrite Configuration - VarSys Store Project (Cloud - Frankfurt)
+const ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
 const PROJECT_ID = '695215eb000105cdf565';
 const DATABASE_ID = 'varsys_store_db';
 const COLLECTION_ID = 'app_updates';
