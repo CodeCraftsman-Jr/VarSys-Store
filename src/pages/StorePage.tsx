@@ -6,7 +6,7 @@ import type { AppUpdate } from '../types/index.js';
 
 const APPS_COLLECTION_ID = 'apps';
 
-type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'UsageTracker' | 'Volt Track' | 'DocuStore';
+type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'Usage Tracker' | 'Volt Track' | 'DocuStore';
 
 interface AppMetadata {
     icon: string;
@@ -126,7 +126,7 @@ export default function StorePage() {
             'CookSuite': [],
             'TraQify': [],
             'Joint Journey': [],
-            'UsageTracker': [],
+            'Usage Tracker': [],
             'Volt Track': [],
             'DocuStore': []
         };
@@ -218,7 +218,7 @@ export default function StorePage() {
             <div className="max-w-6xl mx-auto px-4 mb-10">
                 {/* App Filter */}
                 <div className="flex flex-wrap justify-center gap-2">
-                    {(['All', 'CookSuite', 'TraQify', 'Joint Journey', 'UsageTracker', 'Volt Track', 'DocuStore'] as const).map((filter) => (
+                    {(['All', 'CookSuite', 'TraQify', 'Joint Journey', 'Usage Tracker', 'Volt Track', 'DocuStore'] as const).map((filter) => (
                         <button
                             key={filter}
                             onClick={() => setActiveFilter(filter)}
@@ -322,7 +322,7 @@ function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, ge
             bg: 'bg-blue-500/10',
             border: 'border-blue-500/20'
         },
-        'UsageTracker': {
+        'Usage Tracker': {
             gradient: 'from-purple-500 to-pink-500',
             accent: 'text-purple-400',
             bg: 'bg-purple-500/10',

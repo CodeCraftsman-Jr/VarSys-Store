@@ -95,7 +95,7 @@ export const APP_GROUPS = {
     'CookSuite': ['CookSuite Mobile', 'CookSuite Desktop'],
     'TraQify': ['TraQify Mobile', 'TraQify Desktop'],
     'Joint Journey': ['Joint Journey Mobile', 'Joint Journey Desktop'],
-    'UsageTracker': ['Usage Tracker Mobile'],
+    'Usage Tracker': ['Usage Tracker Mobile'],
     'Volt Track': ['Volt Track Mobile', 'Volt Track Desktop'],
     'DocuStore': ['DocuStore Mobile', 'DocuStore Desktop']
 } as const;
