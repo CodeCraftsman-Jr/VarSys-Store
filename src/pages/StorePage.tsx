@@ -183,7 +183,7 @@ export default function StorePage() {
     availableGroups.sort();
 
     const filteredGroups = activeFilter === 'All'
-        ? Object.entries(groupedUpdates).filter(([group, updates]) => updates.length > 0)
+        ? Object.entries(groupedUpdates).filter(([_, updates]) => updates.length > 0)
         : [[activeFilter, groupedUpdates[activeFilter] || []]] as [string, AppUpdate[]][];
 
     if (isLoading) {
