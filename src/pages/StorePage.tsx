@@ -6,8 +6,6 @@ import type { AppUpdate } from '../types/index.js';
 
 const APPS_COLLECTION_ID = 'apps';
 
-type AppGroupName = 'CookSuite' | 'TraQify' | 'Joint Journey' | 'Usage Tracker' | 'Volt Track' | 'DocuStore';
-
 interface AppMetadata {
     icon: string;
     color: string;
@@ -38,7 +36,7 @@ export default function StorePage() {
     const [appGroups, setAppGroups] = useState<Record<string, string[]>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [activeFilter, setActiveFilter] = useState<AppGroupName | 'All'>('All');
+    const [activeFilter, setActiveFilter] = useState<string>('All');
 
     useEffect(() => {
         async function initializePage() {
@@ -121,20 +119,19 @@ export default function StorePage() {
         }
     }
 
-    function getFilteredUpdates(): Record<AppGroupName, AppUpdate[]> {
-        const grouped: Record<AppGroupName, AppUpdate[]> = {
-            'CookSuite': [],
-            'TraQify': [],
-            'Joint Journey': [],
-            'Usage Tracker': [],
-            'Volt Track': [],
-            'DocuStore': []
-        };
+    function getFilteredUpdates(): Record<string, AppUpdate[]> {
+        const grouped: Record<string, AppUpdate[]> = {};
+
+        // Initialize from appGroups keys to ensure all known groups exist (even if empty)
+        Object.keys(appGroups).forEach(group => {
+            grouped[group] = [];
+        });
 
         updates.forEach((update) => {
             for (const [group, appNames] of Object.entries(appGroups)) {
                 if ((appNames as readonly string[]).includes(update.app_name)) {
-                    grouped[group as AppGroupName].push(update);
+                    if (!grouped[group]) grouped[group] = [];
+                    grouped[group].push(update);
                 }
             }
         });
@@ -180,9 +177,14 @@ export default function StorePage() {
     }
 
     const groupedUpdates = getFilteredUpdates();
+    const availableGroups = Object.keys(groupedUpdates).filter(group => groupedUpdates[group].length > 0 || Object.keys(appGroups).includes(group));
+
+    // Sort groups alphabetically (or define a specific order if needed, but alphabetical is safe default)
+    availableGroups.sort();
+
     const filteredGroups = activeFilter === 'All'
-        ? Object.entries(groupedUpdates)
-        : [[activeFilter, groupedUpdates[activeFilter]]] as [string, AppUpdate[]][];
+        ? Object.entries(groupedUpdates).filter(([group, updates]) => updates.length > 0)
+        : [[activeFilter, groupedUpdates[activeFilter] || []]] as [string, AppUpdate[]][];
 
     if (isLoading) {
         return (
@@ -218,7 +220,16 @@ export default function StorePage() {
             <div className="max-w-6xl mx-auto px-4 mb-10">
                 {/* App Filter */}
                 <div className="flex flex-wrap justify-center gap-2">
-                    {(['All', 'CookSuite', 'TraQify', 'Joint Journey', 'Usage Tracker', 'Volt Track', 'DocuStore'] as const).map((filter) => (
+                    <button
+                        onClick={() => setActiveFilter('All')}
+                        className={`px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-200 ${activeFilter === 'All'
+                            ? 'bg-purple-600 text-white shadow-lg'
+                            : 'bg-white/10 text-purple-200 hover:bg-white/20'
+                            }`}
+                    >
+                        All
+                    </button>
+                    {availableGroups.map((filter) => (
                         <button
                             key={filter}
                             onClick={() => setActiveFilter(filter)}
@@ -253,7 +264,7 @@ export default function StorePage() {
                         {filteredGroups.map(([groupName, groupUpdates]) => (
                             <AppSection
                                 key={groupName}
-                                name={groupName as AppGroupName}
+                                name={groupName}
                                 updates={groupUpdates}
                                 appMetadata={appMetadata}
                                 formatFileSize={formatFileSize}
@@ -284,7 +295,7 @@ export default function StorePage() {
 }
 
 interface AppSectionProps {
-    name: AppGroupName;
+    name: string;
     updates: AppUpdate[];
     appMetadata: Record<string, AppMetadata>;
     formatFileSize: (bytes: number) => string;
@@ -303,46 +314,56 @@ function AppSection({ name, updates, appMetadata, formatFileSize, formatDate, ge
         }));
     };
 
-    const colorConfig = {
-        'CookSuite': {
-            gradient: 'from-orange-500 to-red-500',
-            accent: 'text-orange-400',
-            bg: 'bg-orange-500/10',
-            border: 'border-orange-500/20'
-        },
-        'TraQify': {
-            gradient: 'from-emerald-500 to-teal-500',
-            accent: 'text-emerald-400',
-            bg: 'bg-emerald-500/10',
-            border: 'border-emerald-500/20'
-        },
-        'Joint Journey': {
-            gradient: 'from-blue-500 to-indigo-500',
-            accent: 'text-blue-400',
-            bg: 'bg-blue-500/10',
-            border: 'border-blue-500/20'
-        },
-        'Usage Tracker': {
-            gradient: 'from-purple-500 to-pink-500',
-            accent: 'text-purple-400',
-            bg: 'bg-purple-500/10',
-            border: 'border-purple-500/20'
-        },
-        'Volt Track': {
-            gradient: 'from-yellow-500 to-amber-500',
-            accent: 'text-yellow-400',
-            bg: 'bg-yellow-500/10',
-            border: 'border-yellow-500/20'
-        },
-        'DocuStore': {
-            gradient: 'from-indigo-500 to-purple-500',
-            accent: 'text-indigo-400',
-            bg: 'bg-indigo-500/10',
-            border: 'border-indigo-500/20'
-        }
+    const getColorConfig = (name: string) => {
+        const configs: Record<string, any> = {
+            'CookSuite': {
+                gradient: 'from-orange-500 to-red-500',
+                accent: 'text-orange-400',
+                bg: 'bg-orange-500/10',
+                border: 'border-orange-500/20'
+            },
+            'TraQify': {
+                gradient: 'from-emerald-500 to-teal-500',
+                accent: 'text-emerald-400',
+                bg: 'bg-emerald-500/10',
+                border: 'border-emerald-500/20'
+            },
+            'Joint Journey': {
+                gradient: 'from-blue-500 to-indigo-500',
+                accent: 'text-blue-400',
+                bg: 'bg-blue-500/10',
+                border: 'border-blue-500/20'
+            },
+            'Usage Tracker': {
+                gradient: 'from-purple-500 to-pink-500',
+                accent: 'text-purple-400',
+                bg: 'bg-purple-500/10',
+                border: 'border-purple-500/20'
+            },
+            'Volt Track': {
+                gradient: 'from-yellow-500 to-amber-500',
+                accent: 'text-yellow-400',
+                bg: 'bg-yellow-500/10',
+                border: 'border-yellow-500/20'
+            },
+            'DocuStore': {
+                gradient: 'from-indigo-500 to-purple-500',
+                accent: 'text-indigo-400',
+                bg: 'bg-indigo-500/10',
+                border: 'border-indigo-500/20'
+            }
+        };
+
+        return configs[name] || {
+            // Default fallback for unknown groups
+            gradient: 'from-gray-700 to-gray-600',
+            accent: 'text-gray-200',
+            bg: 'bg-gray-500/10',
+            border: 'border-gray-500/20'
+        };
     };
 
-    const colors = colorConfig[name];
+    const colors = getColorConfig(name);
 
     if (updates.length === 0) return null;
 
