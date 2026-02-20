@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Query } from 'appwrite';
 import { databases, config } from '../lib/appwrite';
@@ -52,7 +52,7 @@ export default function StorePage() {
             const response = await databases.listDocuments(
                 config.databaseId,
                 APPS_COLLECTION_ID,
-                [Query.equal('is_active', true), Query.orderAsc('app_name'), Query.limit(100)]
+                [Query.equal('is_active', true), Query.orderAsc('app_name'), Query.limit(5000)]
             );
 
             console.log('Apps response:', response);
@@ -103,7 +103,7 @@ export default function StorePage() {
                 [
                     Query.equal('is_active', true),
                     Query.orderDesc('released_at'),
-                    Query.limit(100)
+                    Query.limit(5000)
                 ]
             );
 

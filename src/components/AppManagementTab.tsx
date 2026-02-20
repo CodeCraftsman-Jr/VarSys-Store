@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Query } from 'appwrite';
 import { databases, config } from '../lib/appwrite';
 
@@ -76,7 +76,7 @@ export function AppManagementTab() {
             const response = await databases.listDocuments(
                 config.databaseId,
                 APPS_COLLECTION_ID,
-                [Query.orderAsc('app_name'), Query.limit(100)]
+                [Query.orderAsc('app_name'), Query.limit(5000)]
             );
             setApps(response.documents as unknown as AppData[]);
         } catch (err: any) {

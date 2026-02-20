@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Query, ID, Permission, Role } from 'appwrite';
 import { useAuth } from '../context/AuthContext';
@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
             const response = await databases.listDocuments(
                 config.databaseId,
                 APPS_COLLECTION_ID,
-                [Query.equal('is_active', true), Query.orderAsc('app_name'), Query.limit(100)]
+                [Query.equal('is_active', true), Query.orderAsc('app_name'), Query.limit(5000)]
             );
             const appsData = response.documents as unknown as AppData[];
             setApps(appsData);
@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
                 config.collectionId,
                 [
                     Query.orderDesc('released_at'),
-                    Query.limit(100)
+                    Query.limit(5000)
                 ]
             );
             setUpdates(response.documents as unknown as AppUpdate[]);
